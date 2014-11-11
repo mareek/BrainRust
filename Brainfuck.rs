@@ -27,6 +27,10 @@ fn main() {
     }
 }
 
+fn execute_default_program () {
+    execute("[-]>[-]<>+++++++[<+++++++>-]<+++.--.")
+}
+
 fn execute_from_file(file_path : &Path) {
     match File::open(file_path).read_to_end() {
         Ok(file_content) => match str::from_utf8(file_content.as_slice()) {
@@ -35,10 +39,6 @@ fn execute_from_file(file_path : &Path) {
         },
         Err(e) => panic!("invalid file : {}. {}", file_path.display(), e)
     }
-}
-
-fn execute_default_program () {
-    execute("[-]>[-]<>+++++++[<+++++++>-]<+++.--.")
 }
 
 fn execute (program : &str) {
