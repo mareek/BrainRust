@@ -1,6 +1,7 @@
-use std::os;
-use std::io::fs::PathExtensions;
+use std::io;
 use std::io::File;
+use std::io::fs::PathExtensions;
+use std::os;
 use std::str;
 
 // http://esolangs.org/wiki/Brainfuck
@@ -60,8 +61,8 @@ fn process_instruction (program : &str, tape : &mut[u8], pointer : &mut uint, po
         '<' => *pointer -= 1u,
         '+' => tape[*pointer] += 1u8,
         '-' => tape[*pointer] -= 1u8,
-        '.' => output_current_value(tape, *pointer),
-        ',' => panic!("Not implemented operation : ,"),
+        '.' => output(tape, *pointer),
+        ',' => input(tape, *pointer),
         '[' => process_opening_bracket(tape[*pointer], program, position),
         ']' => process_closing_bracket(tape[*pointer], program, position),
         _ => {/* Ignore */}
@@ -77,12 +78,19 @@ fn get_instruction(program : &str, position : uint) -> char {
     }
 }
 
-fn output_current_value(tape : &[u8], pointer : uint) {
+fn output(tape : &[u8], pointer : uint) {
     let value = tape[pointer];
     match str::from_utf8([value]) {
         Some(c) => print!("{}", c),
         None => print_error(format!("incorrect utf-8 value : {}", value).as_slice())
     }    
+}
+
+fn input(tape : &mut[u8], pointer : uint) {
+    match io::stdin().read_byte() {
+        Ok(byte) => tape[pointer] = byte,
+        Err(e) => panic!("no input : {}", e)
+    }
 }
 
 fn process_opening_bracket (value : u8, program : &str, position : &mut uint) {
