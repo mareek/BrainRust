@@ -1,4 +1,3 @@
-use std::io;
 use std::io::File;
 use std::io::fs::PathExtensions;
 use std::os;
@@ -15,26 +14,28 @@ use std::str;
 
 fn main(){
     let args = os::args();
-    let program = readFile();
     let file_path = Path::new(&args[1]);
+    let program = read_file(&file_path);
     if args.len() == 1 {
         execute_default_program();
+    } else if !file_path.exists() {
+        panic!("File {} does not exists", file_path.display());
     } else {
-        if !file_path.exists() {
-            panic!("File {} does not exists", file_path.display());
-        } else {
-            let program = read_file(&file_path);
-        }
+        execute(read_file(&file_path).as_slice());
     }
 }
 
-fn read_file(file_path : &Path) -> &str {
-    match File::open(file_path).read_to_end() {
-        Ok(file_content) => match str::from_utf8(file_content.as_slice()) {
-            Some(str_file) => return str_file,
-            None => panic!("invalid utf-8 file : {}", file_path.display())
-        },
+fn read_file(file_path : &Path) -> String {
+    match File::open(file_path).read_to_string() {
+        Ok(file_content) => file_content,
         Err(e) => panic!("invalid file : {}. {}", file_path.display(), e)
     }
+}
+
+fn execute_default_program () {
+    execute("[-]>[-]<>+++++++[<+++++++>-]<+++.--.")
+}
+
+fn execute(program : &str) {
 
 }
