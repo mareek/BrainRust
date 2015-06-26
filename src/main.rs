@@ -17,16 +17,16 @@ fn main(){
     match args.next() {
         None => execute_default_program(),
         Some(arg) => {
-            execute(read_file(&Path::new(&arg)));
+            execute(read_file(&Path::new(&arg)).trim());
         }
     }
 }
 
-fn read_file(file_path : &Path) -> &str {
+fn read_file<'a>(file_path : &Path) -> String {
     let mut buffer = String::new();
     match File::open(file_path) {
         Ok(mut file) => match file.read_to_string(&mut buffer) {
-            Ok(_) => buffer.trim(),
+            Ok(_) => buffer,
             Err(e) => panic!("realy invalid file : {}. {}", file_path.display(), e)
         },
         Err(e) => panic!("invalid file : {}. {}", file_path.display(), e)
