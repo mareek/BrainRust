@@ -38,5 +38,34 @@ fn execute_default_program () {
 }
 
 fn execute(program : &str)-> String {
+    let executable = Program::new(program);
     panic!("At the disco!\n{}", program)
+}
+
+trait CodeBlock {
+    fn execute(&self);
+} 
+
+struct Program {
+    raw: Vec<char>,
+    instructions: Vec<char>,
+    blocks: Vec<Box<CodeBlock>>
+}
+
+impl Program {
+    pub fn new(program: &str) -> Program {
+        Program { 
+            raw: Vec::new(),
+            instructions: Vec::new(),
+            blocks: Vec::new()
+        }
+    }
+}
+
+impl CodeBlock for Program {
+    fn execute(&self) {
+        for block in &self.blocks {
+            block.execute();
+        }
+    }
 }
