@@ -19,7 +19,7 @@ fn main(){
     match args.next() {
         None => execute_default_program(),
         Some(arg) => {
-            execute(read_file(&Path::new(&arg)).trim());
+            execute(read_file(&Path::new(&arg)));
         }
     }
 }
@@ -36,12 +36,11 @@ fn read_file(file_path : &Path) -> String {
 }
 
 fn execute_default_program () {
-    execute("[-]>[-]<>+++++++[<+++++++>-]<+++.--.");
+    execute(String::from("[-]>[-]<>+++++++[<+++++++>-]<+++.--."));
 }
 
-fn execute(program : &str)-> String {
-    let executable = Program::new(program);
-    panic!("At the disco!\n{}", program)
+fn execute(program : String) {
+    Program::new(&program).execute(&mut [0u8; 640000], &mut 0usize);
 }
 
 trait CodeBlock {
@@ -49,16 +48,14 @@ trait CodeBlock {
 } 
 
 struct Program {
-    raw: Vec<char>,
-    instructions: Vec<char>,
     blocks: Vec<Box<CodeBlock>>
 }
 
 impl Program {
-    fn new(program: &str) -> Program {
+    fn new(program: &String) -> Program {
+        let valid_instructions = ['+', '-', '>', '<', '[', ']', '.', ','];
+        let instructions = program.chars().filter(|&c| valid_instructions.iter().any(|&i| i==c)).collect::<Vec<char>>();
         Program { 
-            raw: Vec::new(),
-            instructions: Vec::new(),
             blocks: Vec::new()
         }
     }
@@ -90,7 +87,7 @@ fn output(tape : &[u8], pointer : usize) {
     let value = tape[pointer];
     match str::from_utf8(&[value]) {
         Ok(c) => print!("{}", c),
-        Err(e) => print_error(format!("incorrect utf-8 value : {}", value).trim())
+        Err(_) => print_error(format!("incorrect utf-8 value : {}", value).trim())
     }    
 }
 
