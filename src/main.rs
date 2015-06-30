@@ -47,6 +47,20 @@ trait CodeBlock {
     fn execute(&self, tape : &mut[u8], pointer : &mut usize);
 } 
 
+impl CodeBlock for char {
+    fn execute(&self, tape : &mut[u8], pointer : &mut usize) {
+        match *self {
+            '>' => *pointer += 1,
+            '<' => *pointer -= 1,
+            '+' => tape[*pointer] += 1u8,
+            '-' => tape[*pointer] -= 1u8,
+            '.' => output(tape, *pointer),
+            ',' => input(tape, *pointer),
+            _ => {/* Ignore */}
+        }
+    }
+}
+
 struct Program {
     blocks: Vec<Box<CodeBlock>>
 }
@@ -69,17 +83,12 @@ impl CodeBlock for Program {
     }
 }
 
-impl CodeBlock for char {
-    fn execute(&self, tape : &mut[u8], pointer : &mut usize) {
-        match *self {
-            '>' => *pointer += 1,
-            '<' => *pointer -= 1,
-            '+' => tape[*pointer] += 1u8,
-            '-' => tape[*pointer] -= 1u8,
-            '.' => output(tape, *pointer),
-            ',' => input(tape, *pointer),
-            _ => {/* Ignore */}
-        }
+struct Loop {
+    blocks: Vec<Box<CodeBlock>>
+}
+
+impl Loop {
+    fn new(instructions: &Vec<char>, currentInstruction: &mut usize) -> Loop {
     }
 }
 
