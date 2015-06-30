@@ -89,8 +89,19 @@ struct Loop {
 
 impl Loop {
     fn new(instructions: &Vec<char>, currentInstruction: &mut usize) -> Loop {
+        panic!("At the disco")
     }
 }
+
+impl CodeBlock for Loop {
+    fn execute(&self, tape : &mut[u8], pointer : &mut usize) {
+        while tape[*pointer] != 0u8 {
+            for block in &self.blocks {
+                block.execute(tape, pointer);
+            }
+        }
+    }
+} 
 
 fn output(tape : &[u8], pointer : usize) {
     let value = tape[pointer];
