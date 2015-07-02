@@ -16,12 +16,13 @@ use std::str;
 
 fn main(){
     let mut args = env::args();
+    args.next();
     match args.next() {
         None => execute_default_program(),
-        Some(arg) => {
-            execute(read_file(&Path::new(&arg)));
-        }
+        Some(arg) => execute(read_file(&Path::new(&arg)))
     }
+    
+    println!("");    
 }
 
 fn read_file(file_path : &Path) -> String {
@@ -70,8 +71,12 @@ impl Program {
         let valid_instructions = ['+', '-', '>', '<', '[', ']', '.', ','];
         let instructions = program.chars().filter(|&c| valid_instructions.iter().any(|&i| i==c)).collect::<Vec<char>>();
         
-        let blocks = Vec::new();
-        let mut currentInstruction = 0;
+        let mut blocks = Vec::new();
+        let mut current_instruction = 0;
+        while current_instruction < instructions.len() {
+            blocks.push(get_code_block(&instructions, &mut current_instruction));
+            current_instruction += 1;            
+        }
         Program { 
             blocks: blocks
         }
@@ -91,13 +96,12 @@ struct Loop {
 }
 
 impl Loop {
-    fn new(instructions: &Vec<char>, currentInstruction: &mut usize) -> Loop {
-        let blocks = Vec::new();
-        
-        currentInstruction += 1;
-        while instructions < instructions.len() && instructions[instructions] != ']' {
-            blocks.push(getCodeBlock(instructions, currentInstruction));
-            currentInstruction += 1;            
+    fn new(instructions: &Vec<char>, current_instruction: &mut usize) -> Loop {
+        let mut blocks = Vec::new();
+        *current_instruction += 1;
+        while *current_instruction < instructions.len() && instructions[*current_instruction] != ']' {
+            blocks.push(get_code_block(instructions, current_instruction));
+            *current_instruction += 1;            
         }
         
         Loop {
@@ -116,11 +120,11 @@ impl CodeBlock for Loop {
     }
 } 
 
-fn getCodeBlock(instructions: &Vec<char>, currentInstruction: &mut usize) -> Box<CodeBlock> {
-    if instructions[currentInstruction] == '[' {
-        Box::new(Loop::new(instructions, currentInstruction))
+fn get_code_block(instructions: &Vec<char>, current_instruction: &mut usize) -> Box<CodeBlock> {
+    if instructions[*current_instruction] == '[' {
+        Box::new(Loop::new(instructions, current_instruction))
     } else {
-        Box::new(instructions[currentInstruction]) 
+        Box::new(instructions[*current_instruction]) 
     }
 }
 
