@@ -44,11 +44,11 @@ fn execute(program : String) {
 }
 
 trait CodeBlock {
-    fn execute(&self, tape : &mut[u8], pointer : &mut usize);
+    fn execute(&self, tape : &mut[u8], pointer: &mut usize);
 } 
 
 impl CodeBlock for char {
-    fn execute(&self, tape : &mut[u8], pointer : &mut usize) {
+    fn execute(&self, tape : &mut[u8], pointer: &mut usize) {
         match *self {
             '>' => *pointer += 1,
             '<' => *pointer -= 1,
@@ -69,8 +69,11 @@ impl Program {
     fn new(program: &String) -> Program {
         let valid_instructions = ['+', '-', '>', '<', '[', ']', '.', ','];
         let instructions = program.chars().filter(|&c| valid_instructions.iter().any(|&i| i==c)).collect::<Vec<char>>();
+        
+        let blocks = Vec::new();
+        let mut currentInstruction = 0;
         Program { 
-            blocks: Vec::new()
+            blocks: blocks
         }
     }
 }
@@ -89,7 +92,17 @@ struct Loop {
 
 impl Loop {
     fn new(instructions: &Vec<char>, currentInstruction: &mut usize) -> Loop {
-        panic!("At the disco")
+        let blocks = Vec::new();
+        
+        currentInstruction += 1;
+        while instructions < instructions.len() && instructions[instructions] != ']' {
+            blocks.push(getCodeBlock(instructions, currentInstruction));
+            currentInstruction += 1;            
+        }
+        
+        Loop {
+            blocks: blocks
+        }        
     }
 }
 
@@ -102,6 +115,14 @@ impl CodeBlock for Loop {
         }
     }
 } 
+
+fn getCodeBlock(instructions: &Vec<char>, currentInstruction: &mut usize) -> Box<CodeBlock> {
+    if instructions[currentInstruction] == '[' {
+        Box::new(Loop::new(instructions, currentInstruction))
+    } else {
+        Box::new(instructions[currentInstruction]) 
+    }
+}
 
 fn output(tape : &[u8], pointer : usize) {
     let value = tape[pointer];
