@@ -137,11 +137,9 @@ fn output(tape : &[u8], pointer : usize) {
 }
 
 fn input(tape : &mut[u8], pointer : usize) {
-    let buffer : &mut[u8] = &mut [0u8];
-    match io::stdin().read(buffer) {
-        Ok(_) => tape[pointer] = buffer[0],
-        Err(e) => panic!("no input : {}", e)
-    }
+    let mut buffer = String::new();    
+    io::stdin().read_line(&mut buffer).unwrap();
+    tape[pointer] = buffer.into_bytes()[0];
 }
 
 fn print_error(error_message : &str) {
