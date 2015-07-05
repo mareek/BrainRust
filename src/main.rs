@@ -1,9 +1,8 @@
+mod utils;
+
 use std::env;
-use std::fs::File;
-use std::io;
 use std::io::Read;
 use std::path::Path;
-use std::str;
 
 // +    Increases element under pointer
 // -    Decrases element under pointer
@@ -19,21 +18,10 @@ fn main(){
     args.next();
     match args.next() {
         None => execute_default_program(),
-        Some(arg) => execute(read_file(&Path::new(&arg)))
+        Some(arg) => execute(utils::read_file(&Path::new(&arg)))
     }
     
     println!("");    
-}
-
-fn read_file(file_path : &Path) -> String {
-    let mut buffer = String::new();
-    match File::open(file_path) {
-        Ok(mut file) => match file.read_to_string(&mut buffer) {
-            Ok(_) => buffer,
-            Err(e) => panic!("realy invalid file : {}. {}", file_path.display(), e)
-        },
-        Err(e) => panic!("invalid file : {}. {}", file_path.display(), e)
-    }
 }
 
 fn execute_default_program () {
@@ -55,8 +43,8 @@ impl CodeBlock for char {
             '<' => *pointer -= 1,
             '+' => tape[*pointer] += 1u8,
             '-' => tape[*pointer] -= 1u8,
-            '.' => output(tape, *pointer),
-            ',' => input(tape, *pointer),
+            '.' => utils::output(tape, *pointer),
+            ',' => utils::input(tape, *pointer),
             _ => {/* Ignore */}
         }
     }
@@ -126,24 +114,4 @@ fn get_code_block(instructions: &Vec<char>, current_instruction: &mut usize) -> 
     } else {
         Box::new(instructions[*current_instruction]) 
     }
-}
-
-fn output(tape : &[u8], pointer : usize) {
-    let value = tape[pointer];
-    match str::from_utf8(&[value]) {
-        Ok(c) => print!("{}", c),
-        Err(_) => print_error(format!("incorrect utf-8 value : {}", value).trim())
-    }    
-}
-
-fn input(tape : &mut[u8], pointer : usize) {
-    let mut buffer = String::new();    
-    io::stdin().read_line(&mut buffer).unwrap();
-    tape[pointer] = buffer.into_bytes()[0];
-}
-
-fn print_error(error_message : &str) {
-    println!("");
-    println!("Error, {}", error_message);
-    println!("");
 }
