@@ -15,18 +15,17 @@ pub fn read_file(file_path : &Path) -> String {
     }
 }
 
-pub fn output(tape : &[u8], pointer : usize) {
-    let value = tape[pointer];
+pub fn output(value : u8) {
     match str::from_utf8(&[value]) {
         Ok(c) => print!("{}", c),
         Err(_) => print_error(format!("incorrect utf-8 value : {}", value).trim())
     }    
 }
 
-pub fn input(tape : &mut[u8], pointer : usize) {
+pub fn input() -> u8 {
     let mut buffer = String::new();    
     io::stdin().read_line(&mut buffer).unwrap();
-    tape[pointer] = buffer.into_bytes()[0];
+    buffer.into_bytes()[0]
 }
 
 fn print_error(error_message : &str) {

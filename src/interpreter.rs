@@ -12,8 +12,8 @@ impl CodeBlock for char {
             '<' => *pointer -= 1,
             '+' => tape[*pointer] += 1u8,
             '-' => tape[*pointer] -= 1u8,
-            '.' => utils::output(tape, *pointer),
-            ',' => utils::input(tape, *pointer),
+            '.' => utils::output(tape[*pointer]),
+            ',' => tape[*pointer] = utils::input(),
             _ => {/* Ignore */}
         }
     }
@@ -31,7 +31,7 @@ impl Program {
         let mut blocks = Vec::new();
         let mut current_instruction = 0;
         while current_instruction < instructions.len() {
-            blocks.push(get_code_block(&instructions, &mut current_instruction));
+            blocks.push(get_code_block(&instructions, &mut current_instruction, utils::output, utils::input));
             current_instruction += 1;            
         }
         Program { 
@@ -57,7 +57,7 @@ impl Loop {
         let mut blocks = Vec::new();
         *current_instruction += 1;
         while *current_instruction < instructions.len() && instructions[*current_instruction] != ']' {
-            blocks.push(get_code_block(instructions, current_instruction));
+            blocks.push(get_code_block(instructions, current_instruction, utils::output, utils::input));
             *current_instruction += 1;            
         }
         
@@ -77,7 +77,7 @@ impl CodeBlock for Loop {
     }
 } 
 
-fn get_code_block(instructions: &Vec<char>, current_instruction: &mut usize) -> Box<CodeBlock> {
+fn get_code_block(instructions: &Vec<char>, current_instruction: &mut usize, output : fn(u8), input : fn() ->u8) -> Box<CodeBlock> {
     if instructions[*current_instruction] == '[' {
         Box::new(Loop::new(instructions, current_instruction))
     } else {
