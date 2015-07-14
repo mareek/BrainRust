@@ -50,7 +50,7 @@ struct Loop {
 }
 
 impl Loop {
-        fn new(instructions: &mut Chars) -> Loop {
+    fn new(instructions: &mut Chars) -> Loop {
         let mut blocks = Vec::new();
         while  let Some(instruction) = instructions.next() {
             if instruction == ']' {
