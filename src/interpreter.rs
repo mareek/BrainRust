@@ -1,4 +1,5 @@
 use std::io::Read;
+use std::str::Chars;
 use utils;
 
 pub trait CodeBlock {
@@ -25,14 +26,10 @@ pub struct Program {
 
 impl Program {
     pub fn new(program: &String) -> Program {
-        let valid_instructions = ['+', '-', '>', '<', '[', ']', '.', ','];
-        let instructions = program.chars().filter(|&c| valid_instructions.iter().any(|&i| i==c)).collect::<Vec<char>>();
-        
+        let mut instructions = program.chars();
         let mut blocks = Vec::new();
-        let mut current_instruction = 0;
-        while current_instruction < instructions.len() {
-            blocks.push(get_code_block(&instructions, &mut current_instruction, utils::output, utils::input));
-            current_instruction += 1;            
+        while let Some(instruction) = instructions.next() {
+            blocks.push(get_code_block(&mut instructions, instruction, utils::output, utils::input));
         }
         Program { 
             blocks: blocks
@@ -53,12 +50,14 @@ struct Loop {
 }
 
 impl Loop {
-    fn new(instructions: &Vec<char>, current_instruction: &mut usize) -> Loop {
+        fn new(instructions: &mut Chars) -> Loop {
         let mut blocks = Vec::new();
-        *current_instruction += 1;
-        while *current_instruction < instructions.len() && instructions[*current_instruction] != ']' {
-            blocks.push(get_code_block(instructions, current_instruction, utils::output, utils::input));
-            *current_instruction += 1;            
+        while  let Some(instruction) = instructions.next() {
+            if instruction == ']' {
+                break;
+            } else {
+                blocks.push(get_code_block(instructions, instruction, utils::output, utils::input));
+            }
         }
         
         Loop {
@@ -77,10 +76,10 @@ impl CodeBlock for Loop {
     }
 } 
 
-fn get_code_block(instructions: &Vec<char>, current_instruction: &mut usize, output : fn(u8), input : fn() ->u8) -> Box<CodeBlock> {
-    if instructions[*current_instruction] == '[' {
-        Box::new(Loop::new(instructions, current_instruction))
+fn get_code_block(instructions: &mut Chars, instruction: char, output : fn(u8), input : fn() ->u8) -> Box<CodeBlock> {
+    if instruction == '[' {
+        Box::new(Loop::new(instructions))
     } else {
-        Box::new(instructions[*current_instruction]) 
+        Box::new(instruction) 
     }
 }
