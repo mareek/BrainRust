@@ -32,5 +32,5 @@ fn execute_default_program () {
 }
 
 fn execute(program : String) {
-    Program::new(&program).execute(&mut [0u8; 640000], &mut 0usize);
+    Program::new_command_line(&program).execute(&mut [0u8; 640000], &mut 0usize);
 }
