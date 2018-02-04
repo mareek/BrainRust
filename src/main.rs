@@ -1,6 +1,8 @@
 mod utils;
 mod interpreter;
-mod test;
+mod fuzzer;
+
+extern crate rand;
 
 use std::env;
 use std::path::Path;
